@@ -1,0 +1,62 @@
+name: CD
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  packages: write
+
+env:
+  IMAGE: ghcr.io/${{ github.repository }}
+
+jobs:
+  release:
+    name: Train, package & publish
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements-dev.txt
+
+      - name: Model version
+        id: v
+        run: |
+          if [[ "$GITHUB_REF_TYPE" == "tag" ]]; then echo "version=$GITHUB_REF_NAME" >> "$GITHUB_OUTPUT";
+          else echo "version=main-${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"; fi
+
+      - name: Train + quality gate
+        run: python -m src.pipeline --version "${{ steps.v.outputs.version }}"
+      - name: Model behaviour tests
+        run: pytest tests/test_model.py
+
+      - name: Log in to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+      - name: Build & push image
+        run: |
+          IMG=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
+          docker build -t "$IMG:${{ steps.v.outputs.version }}" -t "$IMG:latest" \
+            --label org.opencontainers.image.source="https://github.com/${{ github.repository }}" .
+          docker push "$IMG:${{ steps.v.outputs.version }}"
+          docker push "$IMG:latest"
+          echo "### Image published: \`$IMG:${{ steps.v.outputs.version }}\`" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publish model release (tags only)
+        if: github.ref_type == 'tag'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python - <<'PY' > release_notes.md
+          import json
+          r = json.load(open("reports/metrics.json")); t = r["metrics"]["test"]
+          print(f"Random Forest model **{r['version']}**, trained on data `{r['data_sha256_16']}`.\n")
+          print(f"| Test MAE | MAPE | R² | Within ±10% |\n|---|---|---|---|")
+          print(f"| Rs {t['mae']:,.0f} | {t['mape']:.2f}% | {t['r2']:.3f} | {t['within_10pct']:.1f}% |")
+          print("\nThe Streamlit app downloads `vehicle_price_model.joblib` from the latest release.")
+          PY
+          gh release create "$GITHUB_REF_NAME" models/vehicle_price_model.joblib reports/metrics.json MODEL_CARD.md \
+            --title "Model $GITHUB_REF_NAME" --notes-file release_notes.md

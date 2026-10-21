@@ -1,0 +1,8 @@
+# Extra libraries for the full research notebook (model comparison, LIME)
+-r requirements.txt
+xgboost==3.4.1
+lightgbm==4.7.0
+catboost==1.2.10
+seaborn==0.13.2
+lime==0.2.0.1
+jupyter

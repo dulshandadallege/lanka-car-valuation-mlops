@@ -1,0 +1,8 @@
+.git
+.github
+.venv
+__pycache__
+*.ipynb
+notebook_src.py
+tests
+reports

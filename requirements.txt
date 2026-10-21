@@ -1,0 +1,9 @@
+# Runtime: training pipeline + Streamlit app (pinned, because the saved model must load with the same versions)
+scikit-learn==1.9.1
+pandas==3.0.5
+numpy==2.5.3
+joblib==1.6.0
+pyyaml==6.0.3
+shap==0.54.1
+matplotlib==3.11.2
+streamlit==1.66.0

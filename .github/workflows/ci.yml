@@ -1,0 +1,76 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: ["feature/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint-and-test:
+    name: Lint, unit & data-validation tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements-dev.txt
+      - name: Lint (ruff)
+        run: ruff check src app tests
+      - name: Unit + data-validation tests
+        run: pytest tests/test_data.py tests/test_features.py tests/test_monitor.py
+
+  train-evaluate:
+    name: Train, evaluate & quality gate
+    needs: lint-and-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements-dev.txt
+      - name: Train pipeline (fails if the quality gate fails)
+        run: python -m src.pipeline --version "ci-${GITHUB_SHA::7}"
+      - name: Model behaviour tests
+        run: pytest tests/test_model.py
+      - name: Metrics summary
+        if: always()
+        run: |
+          python - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import json
+          r = json.load(open("reports/metrics.json")); t = r["metrics"]["test"]; g = r["quality_gate"]
+          print(f"## Model metrics ({r['version']}, data {r['data_sha256_16']})")
+          print("| Metric | Test | Gate |\n|---|---|---|")
+          print(f"| MAPE | {t['mape']:.2f}% | ≤ {g['max_test_mape']}% |")
+          print(f"| R² | {t['r2']:.3f} | ≥ {g['min_test_r2']} |")
+          print(f"| MAE | Rs {t['mae']:,.0f} | |")
+          print(f"| Within ±10% | {t['within_10pct']:.1f}% | |")
+          print(f"\n**Quality gate: {'✅ passed' if g['passed'] else '❌ failed'}**")
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: model-${{ github.sha }}
+          path: |
+            models/vehicle_price_model.joblib
+            reports/metrics.json
+          retention-days: 14
+
+  docker:
+    name: Build & smoke-test container
+    needs: train-evaluate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: { name: "model-${{ github.sha }}", path: . }
+      - run: docker build -t lanka-car-valuation:ci .
+      - name: Health check
+        run: |
+          docker run -d -p 8501:8501 --name app lanka-car-valuation:ci
+          for i in $(seq 1 40); do curl -sf localhost:8501/_stcore/health && echo " healthy" && exit 0; sleep 3; done
+          docker logs app; exit 1
