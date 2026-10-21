@@ -1,0 +1,18 @@
+[project]
+name = "lanka-car-valuation"
+version = "1.0.0"
+description = "Fair-price estimation for used cars in Sri Lanka, with an MLOps pipeline"
+requires-python = ">=3.12"
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+extend-exclude = ["notebook_src.py", "*.ipynb"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
