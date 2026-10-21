@@ -1,4 +1,3 @@
-"""Behavioural tests on the trained model (run after `python -m src.pipeline`)."""
 import numpy as np
 import pandas as pd
 

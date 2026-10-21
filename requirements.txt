@@ -1,4 +1,3 @@
-# Runtime: training pipeline + Streamlit app (pinned, because the saved model must load with the same versions)
 scikit-learn==1.9.1
 pandas==3.0.5
 numpy==2.5.3

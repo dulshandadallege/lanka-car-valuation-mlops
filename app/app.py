@@ -1,9 +1,3 @@
-"""Sri Lanka used-car fair-price estimator (Streamlit front end).
-
-Run locally:   streamlit run app/app.py
-The model is loaded from models/vehicle_price_model.joblib. If it is missing, it is downloaded from the
-latest GitHub Release (published by the CD pipeline) or, failing that, trained locally with src.pipeline.
-"""
 import sys
 from pathlib import Path
 
@@ -30,7 +24,6 @@ def get_bundle():
 
 @st.cache_resource
 def load_explainer(_bundle):
-    """TreeSHAP on the Random Forest inside the pipeline, plus a map from one-hot columns to original features."""
     inner = _bundle["model"].regressor_
     pre, rf = inner.named_steps["pre"], inner.named_steps["model"]
     cats = sorted(_bundle["cat"], key=len, reverse=True)
@@ -45,7 +38,6 @@ def load_explainer(_bundle):
 
 
 def explain(row: pd.DataFrame) -> tuple[pd.Series, float]:
-    """SHAP value per original feature (one-hot columns summed back), in log-price units."""
     pre, explainer, groups, base = load_explainer(B)
     raw = explainer.shap_values(pre.transform(row))[0]
     return pd.Series(raw, index=groups).groupby(level=0).sum().reindex(FEATURES), base
@@ -75,7 +67,6 @@ def predict(row: pd.DataFrame) -> float:
     return float(pipe.predict(row)[0])
 
 
-# ---------------------------------------------------------------- sidebar: inputs
 st.sidebar.header("Car details")
 examples = load_examples()
 preset = {}
@@ -123,7 +114,6 @@ price = predict(row)
 mape = B["test_mape"] / 100
 low, high = price * (1 - mape), price * (1 + mape)
 
-# ---------------------------------------------------------------- main panel
 st.title("🚗 Sri Lanka Used-Car Fair-Price Estimator")
 st.caption(f"{B['model_name']} {VERSION} trained on {B['trained_on']:,} riyasewana.com listings ({B['data_period']}). "
            f"Typical error on unseen test cars: ±{B['test_mape']:.1f}%.")

@@ -1,4 +1,3 @@
-# Serves the Streamlit app with the model trained by the CD pipeline (models/ is filled before `docker build`).
 FROM python:3.12-slim
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
 WORKDIR /app

@@ -1,7 +1,3 @@
-"""Load the raw riyasewana.com listings, clean them and build the modelling datasets.
-
-Mirrors sections 1-4 of the notebook exactly, so `python -m src.pipeline` reproduces its results.
-"""
 from __future__ import annotations
 
 import glob
@@ -33,7 +29,6 @@ def raw_files(params: dict | None = None) -> list[str]:
 
 
 def data_fingerprint(params: dict | None = None) -> str:
-    """SHA-256 over the raw files: identifies exactly which data a model was trained on."""
     h = hashlib.sha256()
     for f in raw_files(params):
         h.update(os.path.basename(f).encode())
@@ -54,7 +49,6 @@ def load_raw(params: dict | None = None) -> pd.DataFrame:
 
 
 def clean(raw: pd.DataFrame, params: dict | None = None) -> tuple[pd.DataFrame, list[tuple[str, int]]]:
-    """Return the cleaned modelling table and a log of rows kept after each filter."""
     p = params or load_params()
     d, ref_year = p["data"], p["reference_year"]
     df = raw.copy()
@@ -104,7 +98,6 @@ def clean(raw: pd.DataFrame, params: dict | None = None) -> tuple[pd.DataFrame, 
 
 
 def split(data: pd.DataFrame, params: dict | None = None):
-    """Hold out unseen 'new ads', then an 80/20 train/test split (same seeds as the notebook)."""
     p = params or load_params()
     d = p["data"]
     holdout = data.sample(d["holdout_n"], random_state=d["holdout_seed"])
@@ -115,7 +108,6 @@ def split(data: pd.DataFrame, params: dict | None = None):
 
 
 def build_datasets(params: dict | None = None):
-    """Convenience: raw -> clean -> split. Returns (data, log, X_train, X_test, y_train, y_test, holdout)."""
     params = params or load_params()
     data, log = clean(load_raw(params), params)
     return (data, log, *split(data, params))
