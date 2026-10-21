@@ -1,0 +1,39 @@
+name: Drift monitor
+
+on:
+  schedule:
+    - cron: "30 2 * * 1"     # every Monday 08:00 Sri Lanka time
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: pip }
+      - run: pip install -r requirements.txt
+      - name: Build training reference
+        run: python -m src.pipeline --version monitor
+      - name: Population Stability Index check
+        id: psi
+        run: |
+          set +e
+          python -m src.monitor
+          code=$?
+          cat reports/drift.md >> "$GITHUB_STEP_SUMMARY"
+          echo "drift=$([ $code -eq 2 ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+          [ $code -eq 2 ] && exit 0 || exit $code
+      - name: Open a retraining issue
+        if: steps.psi.outputs.drift == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="Data drift detected - retraining recommended"
+          if [ -z "$(gh issue list --state open --search "$title in:title" --json number -q '.[].number')" ]; then
+            gh issue create --title "$title" --body-file reports/drift.md
+          fi
