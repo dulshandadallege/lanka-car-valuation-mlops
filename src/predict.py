@@ -1,7 +1,3 @@
-"""Load the released model and predict prices.
-
-    python -m src.predict data/new_listings_unseen.csv     # prints predictions for a CSV of listings
-"""
 from __future__ import annotations
 
 import sys
@@ -15,7 +11,6 @@ from .config import MODEL_PATH, RELEASE_MODEL_URL
 
 
 def ensure_model(path: Path = MODEL_PATH) -> Path:
-    """Use the local model; otherwise download the latest GitHub Release asset; otherwise train one."""
     if path.exists():
         return path
     path.parent.mkdir(exist_ok=True)
@@ -23,7 +18,7 @@ def ensure_model(path: Path = MODEL_PATH) -> Path:
         print(f"Downloading model from {RELEASE_MODEL_URL}")
         urllib.request.urlretrieve(RELEASE_MODEL_URL, path)
         return path
-    except Exception as exc:  # no release yet, or offline: fall back to training locally
+    except Exception as exc:
         print(f"Download failed ({exc}); training a model locally instead")
         from .pipeline import run
         run("local")

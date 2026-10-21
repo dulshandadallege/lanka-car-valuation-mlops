@@ -1,4 +1,3 @@
-"""Metrics and the quality gate that decides whether a trained model may be released."""
 from __future__ import annotations
 
 import numpy as np
@@ -31,7 +30,6 @@ def evaluate(model, X_train, y_train, X_test, y_test, holdout) -> dict:
 
 
 def quality_gate(metrics: dict, params: dict | None = None) -> list[str]:
-    """Return a list of failures; an empty list means the model passes."""
     g = (params or load_params())["quality_gate"]
     fails = []
     if metrics["test"]["mape"] > g["max_test_mape"]:

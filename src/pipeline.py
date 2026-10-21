@@ -1,9 +1,3 @@
-"""End-to-end training pipeline: prepare -> train -> evaluate -> quality gate -> save.
-
-    python -m src.pipeline                 # train, evaluate, save model + reports/metrics.json
-    python -m src.pipeline --version v1.0.0
-Exits with code 1 if the model fails the quality gate in params.yaml, so CI blocks the release.
-"""
 from __future__ import annotations
 
 import argparse
@@ -40,7 +34,6 @@ def run(version: str = "dev") -> dict:
               "quality_gate": {"passed": not fails, "failures": fails, **params["quality_gate"]}}
     REPORT_DIR.mkdir(exist_ok=True)
     METRICS_PATH.write_text(json.dumps(report, indent=2))
-    # A copy of the training-data profile, used by the drift monitor as its reference.
     data.to_csv(REPORT_DIR / "training_reference.csv", index=False)
     holdout.to_csv(ROOT / "data" / "new_listings_unseen.csv", index=False)
 

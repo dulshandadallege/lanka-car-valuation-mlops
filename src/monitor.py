@@ -1,10 +1,3 @@
-"""Data-drift monitoring with the Population Stability Index (PSI).
-
-    python -m src.monitor data/incoming/new_listings.csv
-Compares a batch of new listings with the training data feature by feature.
-PSI < 0.1 stable · 0.1–0.25 moderate drift · > 0.25 significant drift -> retrain.
-Writes reports/drift.json and reports/drift.md; exits 2 when retraining is recommended.
-"""
 from __future__ import annotations
 
 import json
@@ -65,9 +58,9 @@ def main() -> None:
     if not ref_path.exists():
         sys.exit("Run `python -m src.pipeline` first to create reports/training_reference.csv")
     data = pd.read_csv(ref_path, parse_dates=["ad_date"])
-    if len(sys.argv) > 1:                       # a new batch of listings vs all training data
+    if len(sys.argv) > 1:
         reference, new = data, pd.read_csv(sys.argv[1])
-    else:                                       # temporal check: latest month of ads vs the months before
+    else:
         cutoff = data["ad_date"].max().to_period("M").to_timestamp()
         reference, new = data[data["ad_date"] < cutoff], data[data["ad_date"] >= cutoff]
         print(f"Reference: ads before {cutoff:%b %Y} ({len(reference):,}) | new: {cutoff:%b %Y} ({len(new):,})")

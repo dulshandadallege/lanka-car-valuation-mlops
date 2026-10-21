@@ -1,4 +1,3 @@
-"""Data-validation tests: the raw schema and the cleaned modelling table."""
 import pandas as pd
 
 from src.data import REQUIRED_RAW_COLUMNS, load_raw

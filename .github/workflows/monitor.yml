@@ -2,7 +2,7 @@ name: Drift monitor
 
 on:
   schedule:
-    - cron: "30 2 * * 1"     # every Monday 08:00 Sri Lanka time
+    - cron: "30 2 * * 1"  # Monday 08:00 Sri Lanka time
   workflow_dispatch:
 
 permissions:

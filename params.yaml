@@ -1,6 +1,5 @@
-# Single source of truth for the training pipeline (python -m src.pipeline)
 seed: 42
-reference_year: 2026            # listings are from 2026, so age = 2026 - year of manufacture
+reference_year: 2026
 
 data:
   raw_glob: data/raw/riyasewana_*.csv
@@ -9,11 +8,11 @@ data:
   engine_cc_range: [600, 6000]
   max_mileage_km: 800000
   rare_family_min_count: 15
-  holdout_n: 10                 # unseen listings kept aside for the inference demo
+  holdout_n: 10
   holdout_seed: 7
   test_size: 0.2
 
-model:                          # tuned with 5-fold RandomizedSearchCV in the notebook (section 7)
+model:
   name: RandomForestRegressor
   n_estimators: 500
   max_depth: null
@@ -21,7 +20,7 @@ model:                          # tuned with 5-fold RandomizedSearchCV in the no
   max_features: 0.5
   ohe_min_frequency: 5
 
-quality_gate:                   # CI fails if the trained model is worse than this
+quality_gate:
   max_test_mape: 10.0
   min_test_r2: 0.88
   max_holdout_median_ape: 15.0

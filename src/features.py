@@ -1,4 +1,3 @@
-"""Feature definitions and the domain mappings (model families, towns to districts)."""
 from __future__ import annotations
 
 import re
@@ -10,7 +9,6 @@ CAT = ["brand", "model_family", "gear", "fuel_type", "condition", "body_type", "
 NUM = ["age", "mileage_km", "km_per_year", "engine_cc", "power_options"]
 FEATURES = CAT + NUM
 
-# Raw files that each hold a single model: the file name is the most reliable model label.
 FILE_MODEL = {
     "honda_city_edited": "City", "honda_civic_with_country": "Civic", "honda_cr-v_edited": "CR-V",
     "honda_fit_with_country": "Fit", "honda_grace_edited_cleaned": "Grace", "honda_vezel_edited": "Vezel",
@@ -25,7 +23,6 @@ FILE_MODEL = {
 
 
 def family_from_text(source: str, text) -> str | None:
-    """Map the seller's free-text model name to a model family, for brand-level raw files."""
     t = str(text).lower().strip()
     first = t.split()[0] if t else ""
     if source.startswith("audi"):
@@ -75,12 +72,10 @@ _D = {
     "Jaffna": "Jaffna", "Kilinochchi": "Kilinochchi", "Mannar": "Mannar", "Vavuniya": "Vavuniya",
     "Batticaloa": "Batticaloa Eravur", "Ampara": "Ampara Kalmunai Sammanthurai", "Trincomalee": "Trincomalee",
 }
-# 112 towns -> 24 districts (local knowledge; no listings came from Mullaitivu)
 TOWN_DISTRICT = {town: district for district, towns in _D.items() for town in towns.split()}
 
 
 def make_row(values: dict, ref_year: int) -> pd.DataFrame:
-    """Turn user-entered car details into the exact one-row feature frame the model expects."""
     age = max(ref_year - int(values["year"]), 0)
     mileage = float(values["mileage_km"])
     engine = values.get("engine_cc")

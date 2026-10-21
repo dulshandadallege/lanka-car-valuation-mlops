@@ -1,4 +1,3 @@
-"""Train the tuned Random Forest pipeline (preprocessing + model + log-target) and save a versioned bundle."""
 from __future__ import annotations
 
 import datetime as dt
@@ -28,13 +27,11 @@ def build_pipeline(params: dict | None = None) -> TransformedTargetRegressor:
     rf = RandomForestRegressor(n_estimators=m["n_estimators"], max_depth=m["max_depth"],
                                min_samples_leaf=m["min_samples_leaf"], max_features=m["max_features"],
                                random_state=p["seed"], n_jobs=-1)
-    # Fit on log(price); predictions come back in rupees.
     return TransformedTargetRegressor(regressor=Pipeline([("pre", pre), ("model", rf)]),
                                       func=np.log, inverse_func=np.exp)
 
 
 def make_bundle(model, data, X_train, metrics: dict, data_hash: str, version: str, params: dict) -> dict:
-    """Everything the app and the monitoring job need, saved next to the model itself."""
     brand_models = {b: sorted(data.loc[data["brand"] == b, "model_family"].unique())
                     for b in sorted(data["brand"].unique())}
     defaults = (data.groupby("model_family").agg(

@@ -23,7 +23,7 @@ def test_family_from_text(source, text, expected):
 def test_town_mapping():
     assert TOWN_DISTRICT["Nugegoda"] == "Colombo"
     assert TOWN_DISTRICT["Negombo"] == "Gampaha"
-    assert len(set(TOWN_DISTRICT.values())) == 24  # every district except Mullaitivu
+    assert len(set(TOWN_DISTRICT.values())) == 24
 
 
 def test_make_row():

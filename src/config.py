@@ -1,4 +1,3 @@
-"""Paths and parameters shared by every pipeline step."""
 from __future__ import annotations
 
 from functools import lru_cache
