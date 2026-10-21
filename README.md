@@ -37,8 +37,8 @@ flowchart LR
 | Stage | What happens | Where |
 |---|---|---|
 | **Pull request** → CI | ruff lint → unit + data-validation tests → train → **quality gate** → model tests → Docker build + health check | `.github/workflows/ci.yml` |
-| **Merge to `main`** → CD | retrain → gate → push image `ghcr.io/dulshandadallege/lanka-car-valuation-mlops:latest` | `.github/workflows/cd.yml` |
-| **Tag `vX.Y.Z`** → release | the same, plus a GitHub Release holding the model, `metrics.json` and the model card | `.github/workflows/cd.yml` |
+| **Merge to `main`** → CD | retrain → gate → push image `ghcr.io/dulshandadallege/lanka-car-valuation-mlops:{version, sha, latest}` → publish GitHub Release `v<version>` (model, `metrics.json`, model card) the first time a version ships | `.github/workflows/cd.yml` |
+| **New model version** | bump `version` in `pyproject.toml` → merge → CD publishes a new release, and the app picks it up | `pyproject.toml` |
 | **Every Monday** → monitor | Population Stability Index per feature; opens a retraining issue on significant drift | `.github/workflows/monitor.yml` |
 
 **Reproducibility.** Every setting lives in `params.yaml`. Each saved model carries its version, a SHA-256
