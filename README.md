@@ -3,6 +3,7 @@
 [![CI](https://github.com/dulshandadallege/lanka-car-valuation-mlops/actions/workflows/ci.yml/badge.svg)](https://github.com/dulshandadallege/lanka-car-valuation-mlops/actions/workflows/ci.yml)
 [![CD](https://github.com/dulshandadallege/lanka-car-valuation-mlops/actions/workflows/cd.yml/badge.svg)](https://github.com/dulshandadallege/lanka-car-valuation-mlops/actions/workflows/cd.yml)
 [![Drift monitor](https://github.com/dulshandadallege/lanka-car-valuation-mlops/actions/workflows/monitor.yml/badge.svg)](https://github.com/dulshandadallege/lanka-car-valuation-mlops/actions/workflows/monitor.yml)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://lanka-car-valuation.streamlit.app)
 
 This project estimates the fair **asking price of a used car in Sri Lanka** from its listing details, explains each
 estimate with SHAP, and runs on a full MLOps pipeline covering reproducible training, a quality gate, versioned
@@ -14,7 +15,7 @@ releases, container delivery and drift monitoring.
 |---|---|---|---|
 | Rs 764,419 | 8.07% | 0.917 | 78.9% |
 
-**Live demo:** _add the Streamlit Community Cloud URL here after deploying (see below)_
+**Live demo:** https://lanka-car-valuation.streamlit.app (Streamlit Community Cloud, serving model v1.0.0)
 
 ## How the pipeline works
 
@@ -66,7 +67,7 @@ On macOS, `brew install libomp` is needed for the notebook's XGBoost and LightGB
 
 ## Deploy
 
-- **Streamlit Community Cloud:** share.streamlit.io → *Create app* → this repo, branch `main`, file `app/app.py`,
+- **Streamlit Community Cloud** (live at https://lanka-car-valuation.streamlit.app): share.streamlit.io → *Create app* → this repo, branch `main`, file `app/app.py`,
   Python 3.12. On first start the app downloads the model from the latest GitHub Release, so no binaries live in git.
 - **Docker / any container host** (Azure Container Apps, AWS App Runner, Cloud Run):
   ```bash
