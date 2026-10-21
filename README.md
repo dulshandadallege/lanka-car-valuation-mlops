@@ -9,7 +9,7 @@ This project estimates the fair **asking price of a used car in Sri Lanka** from
 estimate with SHAP, and runs on a full MLOps pipeline covering reproducible training, a quality gate, versioned
 releases, container delivery and drift monitoring.
 
-*IT5514 Applied Machine Learning, final assignment, MSc in AI (University of Moratuwa).*
+
 
 | Test MAE | MAPE | R² | Priced within ±10% |
 |---|---|---|---|
