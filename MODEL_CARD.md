@@ -6,7 +6,7 @@
 | **Version** | Set by the release tag (e.g. `v1.0.0`); stored in the model file's `metadata` together with a SHA-256 fingerprint of the training data |
 | **Task** | Predict the market **asking** price (Rs.) of a used car from its listing details |
 | **Live demo** | https://lanka-car-valuation.streamlit.app |
-| **Owner** | Dulshan, MSc in AI (B19), University of Moratuwa, IT5514 Applied Machine Learning |
+
 
 ## Intended use
 - A buyer or seller checks whether an asking price looks fair, and why (a SHAP explanation per car).
