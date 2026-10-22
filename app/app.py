@@ -176,5 +176,4 @@ with right:
 
 with st.expander("Model input row"):
     st.dataframe(row, width="stretch")
-st.caption("Educational project for IT5514 Applied Machine Learning (University of Moratuwa). "
-           "Estimates reflect asking prices on classified ads, not final sale prices.")
+st.caption("Estimates reflect asking prices on classified ads, not final sale prices.")
